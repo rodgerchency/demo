@@ -165,14 +165,15 @@ class CCLabel:
             group[value].append(key)
         return group
 
-    def save(self):        
+    def save(self, name):        
         img = Image.open(self._imgUrl)
         group = self.getGroup(self._labels)
         for key in group:
             print(key)
             c = self.getCrop(group[key])
             temp = img.crop(c)
-            temp.save('group%i.png'%(key))
+            # temp.save('group%i.png'%(key))
+            temp.save(name + '%i.png'%(key))
 
 
     def getCrop(self, list):
