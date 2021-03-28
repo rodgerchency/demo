@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 23 20:40:23 2021
-
 @author: rodger
 """
 
@@ -39,6 +38,161 @@ class CCLabel:
     
     def getLabels(self):
         return self.getGroup(self._labels)
+    
+    def getGroup(self, dict):
+        group = {}
+        for key, value in dict.items():
+            # print(key, value)
+            if value not in group:
+                group[value] = []
+            group[value].append(key)
+        return group
+
+    def save(self, name):        
+        img = Image.open(self._imgUrl)
+        group = self.getGroup(self._labels)
+        for key in group:
+            print(key)
+            c = self.getCrop(group[key])
+            temp = img.crop(c)
+            # temp.save('group%i.png'%(key))
+            temp.save(name + '%i.png'%(key))
+       
+    def scaleImg(self, img, crop):
+        
+        w = crop[2] - crop[0]
+        h = crop[3] - crop[1]
+        if w == 1:
+            nMaxx = crop[2] + random.randint(0,2)
+        else:
+            nMaxx = crop[2] + random.randint(-1,1)
+        if h == 1:
+            nMaxy = crop[3] + random.randint(0,2)
+        else:
+            nMaxy = crop[3] + random.randint(-1,2)
+        w = nMaxx - crop[0]
+        h = nMaxy - crop[1]
+        print((crop[0], crop[1], nMaxx, nMaxy))
+        return img.resize((w, h)), (crop[0], crop[1], nMaxx, nMaxy)
+
+    def getScaleImgs(self):
+        imgsC, posesC = self.getCropImgs()
+        imgS = [[] for _ in range(len(imgsC))]
+        posesS = [[] for _ in range(len(imgsC))]
+        for i in range(len(imgsC)):
+            print('i=%i,len1=%i,len2=%i'%(i, len(imgsC), len(posesS)))
+            imgs, poses = self.getScales(imgsC[i], posesC[i])
+            imgS[i] = imgs
+            posesS[i] = poses
+        
+        idxLists = self.getCombIDList(imgS)
+        retImgs = self.getImgsByIDLists(idxLists, imgS, posesS)
+        return retImgs
+
+    def getScales(self, img, crop):
+        imgs = []
+        poses = []
+        x = []
+        y = []
+        w = crop[2] - crop[0]
+        h = crop[3] - crop[1]
+        if w == 1:
+            for _ in range(0,3,1):
+                x.append(_)
+        else:            
+            for _ in range(-1,2,1):
+                x.append(_)
+        if h == 1:
+            for _ in range(0,3,1):
+                y.append(_)
+        else:
+            for _ in range(-1,2,1):
+                y.append(_)
+        for i in x:
+            for j in y:
+                nMaxx = crop[2] + i
+                nMaxy = crop[3] + j
+                w = nMaxx - crop[0]
+                h = nMaxy - crop[1]
+                imgs.append(img.resize((w, h)))
+                poses.append((crop[0], crop[1], nMaxx, nMaxy))
+        return imgs, poses
+
+    def combinationsList(self, list1, list2):
+        comb = []
+        for i in list1:
+            for j in list2:
+                #print('%i %i'%(i, j))
+                temp = []
+                if type(i) == list:
+                    temp = i.copy()
+                else:
+                    temp.append(i)
+                temp.append(j)
+                comb.append(temp)
+        return comb
+
+    def getCombIDList(self, lists):
+        
+        idxLists = self.getIndexList(lists)
+        length = len(lists)
+        if length == 2:
+            return self.combinationsList(lists)
+        elif length > 2:
+            comb = idxLists[0]
+            for i in range(1, len(idxLists)):
+                comb = self.combinationsList(comb, idxLists[i])
+            return comb
+        else:
+            return idxLists
+
+    def getImgsByIDLists(self, idLists, pImgs, pPoses):
+        imgs = []
+        for i in range(len(idLists)):
+            img = Image.new('L', (50, 50), 255)
+            for j in range(len(idLists[i])):
+                img.paste(pImgs[j][idLists[i][j]], pPoses[j][idLists[i][j]])
+            imgs.append(img)
+        return imgs
+
+
+    # 回傳idx 陣列
+    # ex [img1, img2, img3] = [0, 1, 2]
+    def getIndexList(self, lists):
+        rets = [[] for _ in range(len(lists))]
+        for i in range(len(lists)):
+            idx = 0
+            for j in range(len(lists[i])):
+                rets[i].append(idx)
+                idx = idx + 1
+        return rets
+        
+    def getCropImgs(self):
+        imgs = []
+        poss = []
+        img = Image.open(self._imgUrl)
+        group = self.getGroup(self._labels)
+        for key in group:
+            print(key)
+            c = self.getCrop(group[key])
+            temp = img.crop(c)
+            imgs.append(temp)
+            # poss.append((c[0], c[1]))
+            poss.append(c)
+        return imgs, poss
+
+    def getCrop(self, list):
+        tempX = []
+        tempY = []
+        for i in range(len(list)):
+            tempX.append(list[i][0])  
+            tempY.append(list[i][1])  
+        minx = min(tempX)
+        maxx = max(tempX)
+        miny = min(tempY)
+        maxy = max(tempY)
+        print('minx=%i miny=%i maxx=%i maxy=%i'%(minx, miny, maxx, maxy))
+        return (minx, miny, maxx + 1, maxy + 1)
 
     def run(self, img):
         data = img.load()
@@ -153,37 +307,5 @@ class CCLabel:
 
             # Colorize the image
             outdata[x, y] = colors[component]
-
+        # output_img.save('output_img.jpg')
         return (labels, output_img)
-
-    def getGroup(self, dict):
-        group = {}
-        for key, value in dict.items():
-            # print(key, value)
-            if value not in group:
-                group[value] = []
-            group[value].append(key)
-        return group
-
-    def save(self, name):        
-        img = Image.open(self._imgUrl)
-        group = self.getGroup(self._labels)
-        for key in group:
-            print(key)
-            c = self.getCrop(group[key])
-            temp = img.crop(c)
-            # temp.save('group%i.png'%(key))
-            temp.save(name + '%i.png'%(key))
-
-
-    def getCrop(self, list):
-        tempX = []
-        tempY = []
-        for i in range(len(list)):
-            tempX.append(list[i][0])  
-            tempY.append(list[i][1])  
-        minx = min(tempX)
-        maxx = max(tempX)
-        miny = min(tempY)
-        maxy = max(tempY)
-        return (minx, miny, maxx, maxy)
