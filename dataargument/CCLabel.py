@@ -72,23 +72,151 @@ class CCLabel:
             nMaxy = crop[3] + random.randint(-1,2)
         w = nMaxx - crop[0]
         h = nMaxy - crop[1]
-        print((crop[0], crop[1], nMaxx, nMaxy))
+        # print((crop[0], crop[1], nMaxx, nMaxy))
         return img.resize((w, h)), (crop[0], crop[1], nMaxx, nMaxy)
-
+    
+    # 針對各部件縮放
     def getScaleImgs(self):
         imgsC, posesC = self.getCropImgs()
         imgS = [[] for _ in range(len(imgsC))]
         posesS = [[] for _ in range(len(imgsC))]
+
+        print(len(imgsC))
+        # 如果只有一個部件則回傳原圖
+        if len(imgsC) == 1:
+          return None
+          # return Image.open(self._imgUrl)
+
         for i in range(len(imgsC)):
-            print('i=%i,len1=%i,len2=%i'%(i, len(imgsC), len(posesS)))
-            imgs, poses = self.getScales(imgsC[i], posesC[i])
+            # print('i=%i,len1=%i,len2=%i'%(i, len(imgsC), len(posesS)))
+            imgs, poses = self.getTrans(imgsC[i], posesC[i])
             imgS[i] = imgs
             posesS[i] = poses
         
         idxLists = self.getCombIDList(imgS)
-        retImgs = self.getImgsByIDLists(idxLists, imgS, posesS)
+        print(len(idxLists))
+        idxLists_limit = idxLists
+        if len(idxLists) > 120:
+            idxLists_limit = idxLists[:120]
+        retImgs = self.getImgsByIDLists(idxLists_limit, imgS, posesS)
         return retImgs
 
+    def getScaleParam(self, lx, ly, rx, ry):
+      w = rx - lx
+      h = ry - ly
+      
+
+    def getTrans(self, img, crop):
+      
+      imgMove, posesMove = self.getSimpleMoves(img, crop)
+      imgsScale = []
+      posesScale = []
+      for i in range(len(imgMove)):
+        imgs, poses = self.getSimpleScales(imgMove[i], posesMove[i])
+        imgsScale = imgsScale + imgs
+        posesScale = posesScale + poses
+      return imgsScale, posesScale
+
+    def getSimpleMoves(self, img, crop):
+        lx = crop[0]
+        ly = crop[1]
+        rx = crop[2]
+        ry = crop[3]
+        x = []
+        y = []
+        imgs = []
+        poses = []
+        if lx == 0:
+          x = [2, 3]
+        elif rx == 51:
+          x = [-2, -3]
+        else:
+          x = [-1, -2]
+        if ly == 0:
+          y = [2, 3]
+        elif ry == 51:
+          y = [-2, -3]
+        else:
+          y = [-1, -2]
+        for i in x:
+            for j in y:
+              if i == 0 and y == 0:
+                continue
+              lx = crop[0] + i
+              ly = crop[1] + j
+              rx = crop[2] + i
+              ry = crop[3] + j
+              imgs.append(img)
+              poses.append((lx, ly, rx, ry))
+        return imgs, poses   
+
+    def getSimpleScales(self, img, crop):
+        imgs = []
+        poses = []
+        x = []
+        y = []
+        w = crop[2] - crop[0]
+        h = crop[3] - crop[1]
+        if w == 1:
+            x = [2]
+        else:
+            x = [-1]
+        if h == 1:
+            y = [2]
+        else:
+            y = [1]
+        for i in x:
+            for j in y:
+              if i == 0 and y == 0:
+                continue
+              nMaxx = crop[2] + i
+              nMaxy = crop[3] + j
+              w = nMaxx - crop[0]
+              h = nMaxy - crop[1]
+              imgs.append(img.resize((w, h)))
+              poses.append((crop[0], crop[1], nMaxx, nMaxy))
+        return imgs, poses
+    # 回傳所有位移組合
+    def getMoves(self, img, crop):
+        lx = crop[0]
+        ly = crop[1]
+        rx = crop[2]
+        ry = crop[3]
+        x = []
+        y = []
+        imgs = []
+        poses = []
+        if lx == 0:
+          for _ in range(0,3,1):
+            x.append(_)
+        elif rx == 51:
+          for _ in range(-2,1,1):
+            x.append(_)
+        else:
+          for _ in range(-1,2,1):
+            x.append(_)
+        if ly == 0:
+          for _ in range(0,3,1):
+            y.append(_)
+        elif ry == 51:
+          for _ in range(-2,1,1):
+            y.append(_)
+        else:
+          for _ in range(-1,2,1):
+            y.append(_)
+        for i in x:
+            for j in y:
+              if i == 0 and y == 0:
+                continue
+              lx = crop[0] + i
+              ly = crop[1] + j
+              rx = crop[2] + i
+              ry = crop[3] + j
+              imgs.append(img)
+              poses.append((lx, ly, rx, ry))
+        return imgs, poses            
+
+    # 回傳所有縮放組合
     def getScales(self, img, crop):
         imgs = []
         poses = []
@@ -110,12 +238,14 @@ class CCLabel:
                 y.append(_)
         for i in x:
             for j in y:
-                nMaxx = crop[2] + i
-                nMaxy = crop[3] + j
-                w = nMaxx - crop[0]
-                h = nMaxy - crop[1]
-                imgs.append(img.resize((w, h)))
-                poses.append((crop[0], crop[1], nMaxx, nMaxy))
+              if i == 0 and y == 0:
+                continue
+              nMaxx = crop[2] + i
+              nMaxy = crop[3] + j
+              w = nMaxx - crop[0]
+              h = nMaxy - crop[1]
+              imgs.append(img.resize((w, h)))
+              poses.append((crop[0], crop[1], nMaxx, nMaxy))
         return imgs, poses
 
     def combinationsList(self, list1, list2):
@@ -137,13 +267,14 @@ class CCLabel:
         idxLists = self.getIndexList(lists)
         length = len(lists)
         if length == 2:
-            return self.combinationsList(lists)
+            return self.combinationsList(idxLists[0], idxLists[1])
         elif length > 2:
             comb = idxLists[0]
             for i in range(1, len(idxLists)):
                 comb = self.combinationsList(comb, idxLists[i])
             return comb
         else:
+            print('len is 1')
             return idxLists
 
     def getImgsByIDLists(self, idLists, pImgs, pPoses):
@@ -151,10 +282,11 @@ class CCLabel:
         for i in range(len(idLists)):
             img = Image.new('L', (50, 50), 255)
             for j in range(len(idLists[i])):
-                img.paste(pImgs[j][idLists[i][j]], pPoses[j][idLists[i][j]])
+              if type(idLists[i][j]) != int:
+                print(idLists[i][j])              
+              img.paste(pImgs[j][idLists[i][j]], pPoses[j][idLists[i][j]])
             imgs.append(img)
         return imgs
-
 
     # 回傳idx 陣列
     # ex [img1, img2, img3] = [0, 1, 2]
@@ -173,7 +305,7 @@ class CCLabel:
         img = Image.open(self._imgUrl)
         group = self.getGroup(self._labels)
         for key in group:
-            print(key)
+            # print(key)
             c = self.getCrop(group[key])
             temp = img.crop(c)
             imgs.append(temp)
@@ -191,7 +323,7 @@ class CCLabel:
         maxx = max(tempX)
         miny = min(tempY)
         maxy = max(tempY)
-        print('minx=%i miny=%i maxx=%i maxy=%i'%(minx, miny, maxx, maxy))
+        # print('minx=%i miny=%i maxx=%i maxy=%i'%(minx, miny, maxx, maxy))
         return (minx, miny, maxx + 1, maxy + 1)
 
     def run(self, img):
@@ -203,109 +335,42 @@ class CCLabel:
     
         #
         # First pass
-        #
-    
-        # Dictionary of point:label pairs
+        #    
         labels = {}
-    
-        print(width * height)
         for y, x in product(range(height), range(width)):
-    
-            #
-            # Pixel names were chosen as shown:
-            #
-            #   -------------
-            #   | a | b | c |
-            #   -------------
-            #   | d | e |   |
-            #   -------------
-            #   |   |   |   |
-            #   -------------
-            #
-            # The current pixel is e
-            # a, b, c, and d are its neighbors of interest
-            #
-            # 255 is white, 0 is black
-            # White pixels part of the background, so they are ignored
-            # If a pixel lies outside the bounds of the image, it default to white
-            #
-    
-            # If the current pixel is white, it's obviously not a component...
             if data[x, y] == 255:
                 pass
-    
-            # If pixel b is in the image and black:
-            #    a, d, and c are its neighbors, so they are all part of the same component
-            #    Therefore, there is no reason to check their labels
-            #    so simply assign b's label to e
             elif y > 0 and data[x, y-1] == 0:
                 labels[x, y] = labels[(x, y-1)]
-    
-            # If pixel c is in the image and black:
-            #    b is its neighbor, but a and d are not
-            #    Therefore, we must check a and d's labels
-            elif x+1 < width and y > 0 and data[x+1, y-1] == 0:
-    
+            elif x+1 < width and y > 0 and data[x+1, y-1] == 0:    
                 c = labels[(x+1, y-1)]
                 labels[x, y] = c
-    
-                # If pixel a is in the image and black:
-                #    Then a and c are connected through e
-                #    Therefore, we must union their sets
                 if x > 0 and data[x-1, y-1] == 0:
                     a = labels[(x-1, y-1)]
                     uf.union(c, a)
-    
-                # If pixel d is in the image and black:
-                #    Then d and c are connected through e
-                #    Therefore we must union their sets
                 elif x > 0 and data[x-1, y] == 0:
                     d = labels[(x-1, y)]
                     uf.union(c, d)
-    
-            # If pixel a is in the image and black:
-            #    We already know b and c are white
-            #    d is a's neighbor, so they already have the same label
-            #    So simply assign a's label to e
             elif x > 0 and y > 0 and data[x-1, y-1] == 0:
                 labels[x, y] = labels[(x-1, y-1)]
-    
-            # If pixel d is in the image and black
-            #    We already know a, b, and c are white
-            #    so simpy assign d's label to e
             elif x > 0 and data[x-1, y] == 0:
                 labels[x, y] = labels[(x-1, y)]
-    
-            # All the neighboring pixels are white,
-            # Therefore the current pixel is a new component
             else: 
                 labels[x, y] = uf.makeLabel()
     
         #
         # Second pass
-        #
-    
-        uf.flatten()
-    
+        #    
+        uf.flatten()    
         colors = {}
-
-        # Image to display the components in a nice, colorful way
         output_img = Image.new("RGB", (width, height))
         outdata = output_img.load()
 
         for (x, y) in labels:
-    
-            # Name of the component the current point belongs to
             component = uf.find(labels[(x, y)])
-            
-            # Update the labels with correct information
-            labels[(x, y)] = component
-    
-            # Associate a random color with this component 
+            labels[(x, y)] = component    
             if component not in colors: 
                 colors[component] = (random.randint(0,255), random.randint(0,255),random.randint(0,255))
 
-            # Colorize the image
             outdata[x, y] = colors[component]
-        # output_img.save('output_img.jpg')
         return (labels, output_img)
