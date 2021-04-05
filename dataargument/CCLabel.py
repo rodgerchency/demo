@@ -99,12 +99,7 @@ class CCLabel:
         if len(idxLists) > 120:
             idxLists_limit = idxLists[:120]
         retImgs = self.getImgsByIDLists(idxLists_limit, imgS, posesS)
-        return retImgs
-
-    def getScaleParam(self, lx, ly, rx, ry):
-      w = rx - lx
-      h = ry - ly
-      
+        return retImgs      
 
     def getTrans(self, img, crop):
       
@@ -260,6 +255,8 @@ class CCLabel:
                     temp.append(i)
                 temp.append(j)
                 comb.append(temp)
+                if len(comb) >= 120:
+                    return comb
         return comb
 
     def getCombIDList(self, lists):

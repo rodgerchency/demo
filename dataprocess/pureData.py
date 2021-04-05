@@ -12,11 +12,11 @@ def compare(list1, imgA):
     return False
 
 def read(path, dicts):
-    files = os.listdir(rootPath)
+    files = os.listdir(path)
     for f in files:
         if f[0] not in dicts:
             dicts[f[0]] = []
-        img_path = rootPath + '/' + f
+        img_path = path + '/' + f
         img_array = Image.open(img_path)
         if not compare(dicts[f[0]], img_array):
             dicts[f[0]].append(img_array)
@@ -26,7 +26,7 @@ rootPath = '../trainData'
 
 picts = {}
 picts = read('../trainData', picts)
-picts = read('../testData', picts)
+# picts = read('../testData', picts)
 
 
 
