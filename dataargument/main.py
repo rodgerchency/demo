@@ -38,8 +38,8 @@ import numpy as np
 
 # needs = ['諦','諸','識','身','道','遠','阿','除','集','離','顛','香','鼻',]
 # 資料擴增
-# dataLoader = DataLoader('../dataprocess/total')
-# newRoot = '../dataprocess/new'
+# dataLoader = DataLoader('../dataprocess/trainChina/')
+# newRoot = '../dataprocess/newTrainChina/'
 # picts = dataLoader.getData()
 # for key in picts:
 #   print(key)
@@ -58,7 +58,7 @@ import numpy as np
 #       if lens > 120:
 #         lens = 120
 #       for i in range(lens):
-#         imgs[i].save(newRoot + '/' + key + '/' + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
+#         imgs[i].save(newRoot + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
 #     else:
 #         print(pathPic + ' is None')
 #     cnt = cnt + 1

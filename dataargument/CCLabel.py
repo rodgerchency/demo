@@ -126,13 +126,19 @@ class CCLabel:
         elif rx == 51:
           x = [-2, -3]
         else:
-          x = [-1, -2]
+            if random.randint(0,1) == 1:
+                x = [-2]
+            else:
+                x = [2]
         if ly == 0:
-          y = [2, 3]
+          y = [2]
         elif ry == 51:
-          y = [-2, -3]
+          y = [-2]
         else:
-          y = [-1, -2]
+            if random.randint(0,1) == 1:
+                y = [-2]
+            else:
+                y = [2]
         for i in x:
             for j in y:
               if i == 0 and y == 0:
@@ -153,13 +159,25 @@ class CCLabel:
         w = crop[2] - crop[0]
         h = crop[3] - crop[1]
         if w == 1:
-            x = [2]
+            if random.randint(0,1) == 1:
+                x = [2]
+            else:
+                x = [3]
         else:
-            x = [-1]
+            if random.randint(0,1) == 1:
+                x = [-1]
+            else:
+                x = [2]
         if h == 1:
-            y = [2]
+            if random.randint(0,1) == 1:
+                y = [2]
+            else:
+                y = [3]
         else:
-            y = [1]
+            if random.randint(0,1) == 1:
+                y = [-1]
+            else:
+                y = [2]
         for i in x:
             for j in y:
               if i == 0 and y == 0:
