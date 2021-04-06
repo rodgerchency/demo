@@ -9,6 +9,32 @@ import random
 from itertools import combinations
 import numpy as np
 
+cclabel = CCLabel('new.jpg')
+cclabel.save('parts/')
+
+# dataLoader = DataLoader('../dataprocess/trainChina/')
+# newRoot = 'parts/'
+# picts = dataLoader.getData()
+# ex: trainChina/三_1.jpg
+
+# cnt = 0
+# key = '乃'
+# for path in picts[key]:
+#     cclabel = CCLabel(path)
+#     if cclabel.getPartLen() > 1:
+#         cclabel.save(newRoot + key + '_' + str(cnt))
+#     cnt = cnt + 1
+  # if key in haveDone:
+  #   continue
+  # if key not in needs:
+  #     continue
+#   cnt = 0
+#   for pathPic in picts[key]:
+#     print(pathPic)
+    # cclabel = CCLabel(pathPic)
+    
+
+
 # dataModel = DataModel('../dataprocess/total/', '../dataprocess/new/', 3188)
 
 # dataLoader = DataLoader('../dataprocess/total')

@@ -35,7 +35,11 @@ class CCLabel:
         # output_image is just a frivolous way to visualize the components.
         (self._labels, self._output_img) = self.run(img)
         # output_img.show()
-            
+    
+    def getPartLen(self):
+        group = self.getGroup(self._labels)
+        return len(group)
+        
     def getLabels(self):
         return self.getGroup(self._labels)
     
@@ -48,17 +52,15 @@ class CCLabel:
             group[value].append(key)
         return group
 
-    def save(self, name):
-        for i in range(len(self._output_img)):
-            self._output_img[i].save('%s%i.png'%(name, i))
-        # img = Image.open(self._imgUrl)
-        # group = self.getGroup(self._labels)
-        # for key in group:
-        #     print(key)
-        #     c = self.getCrop(group[key])
-        #     temp = img.crop(c)
-        #     # temp.save('group%i.png'%(key))
-        #     temp.save(name + '%i.png'%(key))
+    def save(self, name):        
+        img = Image.open(self._imgUrl)
+        group = self.getGroup(self._labels)
+        for key in group:
+            print(key)
+            c = self.getCrop(group[key])
+            temp = img.crop(c)
+            # temp.save('group%i.png'%(key))
+            temp.save(name + '%i.png'%(key))
        
     def scaleImg(self, img, crop):
         
@@ -374,7 +376,7 @@ class CCLabel:
                 labels[x, y] = labels[(x-1, y)]
             else: 
                 labels[x, y] = uf.makeLabel()
-        
+    
         #
         # Second pass
         #    
@@ -383,19 +385,6 @@ class CCLabel:
         output_img = Image.new("RGB", (width, height))
         outdata = output_img.load()
 
-        idxMap = []
-        cnt = 0
-        for key, value in labels.items():
-            if value not in idxMap:
-                idxMap.append(cnt)
-                cnt = cnt + 1
-        
-        imgs = []
-        imgDatas = []
-        for i in range(len(idxMap)):
-            imgs.append(Image.new('L', (50, 50), 255))
-            imgDatas.append(imgs[i].load())
-
         for (x, y) in labels:
             component = uf.find(labels[(x, y)])
             labels[(x, y)] = component    
@@ -403,7 +392,4 @@ class CCLabel:
                 colors[component] = (random.randint(0,255), random.randint(0,255),random.randint(0,255))
 
             outdata[x, y] = colors[component]
-            idx = idxMap.index(component)
-            imgDatas[idx][(x,y)] = data[(x,y)]
-            print(data[(x,y)])
-        return (labels, imgs)
+        return (labels, output_img)
