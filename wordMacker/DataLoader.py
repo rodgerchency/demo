@@ -11,7 +11,7 @@ class DataLoader:
         print(len(files))
         for f in files:
             if f[0] not in self._pictPaths:
-                self._pictPaths[f[0]] = []
+                    self._pictPaths[f[0]] = []
             self._pictPaths[f[0]].append(path + f)
     
     def getData(self):

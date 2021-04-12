@@ -9,13 +9,79 @@ import random
 from itertools import combinations
 import numpy as np
 
-cclabel = CCLabel('new.jpg')
-cclabel.save('parts/')
+
+# 旋轉
+# img = Image.open('../dataprocess/trainChina/亦_1.jpg')
+# for i in range(10):
+#   img.rotate(i,resample=0, expand=0).save('img_%i.jpg'%(i))
 
 # dataLoader = DataLoader('../dataprocess/trainChina/')
 # newRoot = 'parts/'
 # picts = dataLoader.getData()
 # ex: trainChina/三_1.jpg
+
+# cclabel = CCLabel('../dataprocess/trainChina/亦_1.jpg')
+# cclabel.save('temp_')
+
+# for key in picts:
+#   cnt = 0
+#   for path in picts[key]:
+#     cclabel = CCLabel(path)
+#     cclabel.save('parts/%s_%i'%(key,cnt))
+#     cnt = cnt + 1
+
+dataLoader = DataLoader('../wordMacker/totalFontChina/')
+picts = dataLoader.getData()
+cnt = 0
+pictNew = {}
+for key in picts:
+  cnt = 0
+  for path in picts[key]:
+      cclabel = CCLabel(path)
+      if cclabel.hasParts():
+        if key not in pictNew:
+          pictNew[key] = []
+        pictNew[key].append(path)
+
+print(len(pictNew))
+for key in pictNew:
+  lenPath = len(pictNew[key])
+  if lenPath < 20:
+    continue
+  cnt = 0
+  cntTr = 0
+  cntTe = 0
+  for path in pictNew[key]:      
+    if cnt < int(lenPath * 0.6):
+      Image.open(path).save('trainGray/%s_%i_.png'%(key, cntTr))
+      cclabel = CCLabel(path)
+      cclabel.save('trainPart/%s_%i_'%(key, cntTr))
+      # cclabel.saveColor('trainColorFont/%s_%i_'%(key, cntTr))
+      cntTr = cntTr + 1
+    else:
+      Image.open(path).save('testGray/%s_%i_.png'%(key, cntTe))
+      cclabel = CCLabel(path)
+      cclabel.saveColor('testPart/%s_%i_'%(key, cntTe))
+      # cclabel.saveColor('testColorFont/%s_%i_'%(key, cntTe))
+      cntTe = cntTe + 1
+    cnt = cnt + 1
+  
+  if cntTe == 0:
+      print(key)
+
+      # cclabel.saveColor('parts/%s_%i_'%(key, cnt))
+      # cnt = cnt + 1
+      # imgs = cclabel.getScaleImgs()
+      # if imgs is not None:
+      #   print(len(imgs))
+      #   lens = len(imgs)
+      #   if lens > 120:
+      #     lens = 120
+      #   for i in range(lens):
+      #     imgs[i].save(newRoot + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
+      #   else:
+      #     print(path + ' is None')
+      #   cnt = cnt + 1
 
 # cnt = 0
 # key = '乃'

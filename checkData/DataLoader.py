@@ -6,7 +6,7 @@ from keras.preprocessing import image as Image
 
 class DataLoader:
 
-  def __init__(self, trainPath, testPath, extraPath):
+  def __init__(self, trainPath, testPath, extraPath, useGray):
     
     self.trainPath = trainPath
     self.testPath = testPath
@@ -29,7 +29,7 @@ class DataLoader:
     Random.shuffle(allImgPaths)
     for path in allImgPaths:
         purePath = self.clearPath(path)
-        img = Image.load_img(path, grayscale=True)
+        img = Image.load_img(path, grayscale=useGray)
         img_array = Image.img_to_array(img)
         self.imgTrain.append(img_array)
         self.labelTrain.append(ord(purePath[0]))
@@ -43,7 +43,7 @@ class DataLoader:
     Random.shuffle(allImgPaths)
     for path in allImgPaths:
         purePath = self.clearPath(path)
-        img = Image.load_img(path, grayscale=True)
+        img = Image.load_img(path, grayscale=useGray)
         img_array = Image.img_to_array(img)
         self.imgTest.append(img_array)
         self.labelTest.append(ord(purePath[0]))
@@ -54,7 +54,7 @@ class DataLoader:
     print('train ' + str(len(self.imgTrain)) + ',' + str(len(self.oneHotTrain)))
     print('train ' + str(len(self.imgTest)) + ',' + str(len(self.oneHotTest)))
     print('elTrain:%i,elTest:%i'%(len(self.elTrain),len(self.elTest)))
-    for i in range(109):
+    for i in range(len(self.elTrain)):
       print(self.elTrain[i] == self.elTest[i])
       print('train=%i,test=%i'%(self.elTrain[i],self.elTest[i]))
 

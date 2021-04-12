@@ -32,50 +32,58 @@ class CCLabel:
         # will want to use
         #
         # output_image is just a frivolous way to visualize the components.
-        (self._labels, self.partImgs, self._output_img) = self.run(img)
+        (self._labels, self._output_imgs, self._output_img) = self.run(img)
         # print(len(self._output_img1))
         # output_img.save('output_img.jpg')
         # output_img.show()
+            
+    def getLabels(self):
+        return self.getGroup(self._labels)
     
-    def saveColor(self, name):
-        if len(self.partImgs) == 1:
-            return
-        self._output_img.save('%s.png'%(name))
-
-    def hasParts(self):
-        if len(self.partImgs) > 1:
-            return True
-        else:
-            return False
+    def getGroup(self, dict):
+        group = {}
+        for key, value in dict.items():
+            # print(key, value)
+            if value not in group:
+                group[value] = []
+            group[value].append(key)
+        return group
 
     def save(self, name):
-        if len(self.partImgs) == 1:
+        if len(self._output_imgs) == 1:
             return
-        
         # self._output_img.save('%s.png'%(name))
+        for i in range(len(self._output_imgs)):
+            self._output_imgs[i].save('%s_%i.png'%(name, i))
+        # img = Image.open(self._imgUrl)
+        # group = self.getGroup(self._labels)
+        # for key in group:
+        #     print(key)
+        #     c = self.getCrop(group[key])
+        #     temp = img.crop(c)
+        #     # temp.save('group%i.png'%(key))
+        #     temp.save(name + '%i.png'%(key))
+       
+    def scaleImg(self, img, crop):
         
-        # img = Image.new('L', (50, 50), 255)
-        for i in range(len(self.partImgs)):
-            self.partImgs[i].save('%s_%i.png'%(name, i))
-        #     c = self.getCoreCrop(self.partImgs[i])
-        #     # temp = self.partImgs[i].crop(c)
-        #     # temp.save('%s_%i_crop.png'%(name, i))
-        #     print(self.partImgs[i].size)
-        #     print(c)
-        #     temp = self.partImgs[i].crop(c)
-        #     img.paste(temp, c)
-        # img.save('%s_%i.png'%(name, i))
-
+        w = crop[2] - crop[0]
+        h = crop[3] - crop[1]
+        if w == 1:
+            nMaxx = crop[2] + random.randint(0,2)
+        else:
+            nMaxx = crop[2] + random.randint(-1,1)
+        if h == 1:
+            nMaxy = crop[3] + random.randint(0,2)
+        else:
+            nMaxy = crop[3] + random.randint(-1,2)
+        w = nMaxx - crop[0]
+        h = nMaxy - crop[1]
+        # print((crop[0], crop[1], nMaxx, nMaxy))
+        return img.resize((w, h)), (crop[0], crop[1], nMaxx, nMaxy)
+    
     # 針對各部件縮放
     def getScaleImgs(self):
-        
-        imgsC = []
-        posesC = []        
-        for i in range(len(self.partImgs)):
-            c = self.getCoreCrop(self.partImgs[i])
-            imgsC.append(self.partImgs[i].crop(c))
-            posesC.append(c)
-
+        imgsC, posesC = self.getCropImgs()
         imgS = [[] for _ in range(len(imgsC))]
         posesS = [[] for _ in range(len(imgsC))]
 
@@ -98,26 +106,6 @@ class CCLabel:
             idxLists_limit = idxLists[:120]
         retImgs = self.getImgsByIDLists(idxLists_limit, imgS, posesS)
         return retImgs      
-
-    def getCoreCrop(self, img):
-           
-        outdata = img.load()
-        minx = 50
-        maxx = 0
-        miny = 50
-        maxy = 0
-        for x in range(50):
-            for y in range(50):
-                if outdata[x,y] < 200:
-                    if x < minx:
-                        minx = x
-                    if x > maxx:
-                        maxx = x
-                    if y < miny:
-                        miny = y
-                    if y > maxy:
-                        maxy = y
-        return (minx, miny, maxx + 1, maxy +1)
 
     def getTrans(self, img, crop):
       
