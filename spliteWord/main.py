@@ -14,6 +14,6 @@ picts = dataLoader.getData()
 for key in picts:
   cnt = 0
   for path in picts[key]:
-      splitWord = SplitWord(path)
+      splitWord = SplitWord(path) 
       splitWord.save('%s_%i_'%(key, cnt))
       cnt = cnt + 1

@@ -30,44 +30,44 @@ import numpy as np
 #     cclabel.save('parts/%s_%i'%(key,cnt))
 #     cnt = cnt + 1
 
-dataLoader = DataLoader('../wordMacker/totalFontChina/')
-picts = dataLoader.getData()
-cnt = 0
-pictNew = {}
-for key in picts:
-  cnt = 0
-  for path in picts[key]:
-      cclabel = CCLabel(path)
-      if cclabel.hasParts():
-        if key not in pictNew:
-          pictNew[key] = []
-        pictNew[key].append(path)
+# dataLoader = DataLoader('../wordMacker/totalFontChina/')
+# picts = dataLoader.getData()
+# cnt = 0
+# pictNew = {}
+# for key in picts:
+#   cnt = 0
+#   for path in picts[key]:
+#       cclabel = CCLabel(path)
+#       if cclabel.hasParts():
+#         if key not in pictNew:
+#           pictNew[key] = []
+#         pictNew[key].append(path)
 
-print(len(pictNew))
-for key in pictNew:
-  lenPath = len(pictNew[key])
-  if lenPath < 20:
-    continue
-  cnt = 0
-  cntTr = 0
-  cntTe = 0
-  for path in pictNew[key]:      
-    if cnt < int(lenPath * 0.6):
-      Image.open(path).save('trainGray/%s_%i_.png'%(key, cntTr))
-      cclabel = CCLabel(path)
-      cclabel.save('trainPart/%s_%i_'%(key, cntTr))
-      # cclabel.saveColor('trainColorFont/%s_%i_'%(key, cntTr))
-      cntTr = cntTr + 1
-    else:
-      Image.open(path).save('testGray/%s_%i_.png'%(key, cntTe))
-      cclabel = CCLabel(path)
-      cclabel.saveColor('testPart/%s_%i_'%(key, cntTe))
-      # cclabel.saveColor('testColorFont/%s_%i_'%(key, cntTe))
-      cntTe = cntTe + 1
-    cnt = cnt + 1
+# print(len(pictNew))
+# for key in pictNew:
+#   lenPath = len(pictNew[key])
+#   if lenPath < 20:
+#     continue
+#   cnt = 0
+#   cntTr = 0
+#   cntTe = 0
+#   for path in pictNew[key]:      
+#     if cnt < int(lenPath * 0.6):
+#       Image.open(path).save('trainGray/%s_%i_.png'%(key, cntTr))
+#       cclabel = CCLabel(path)
+#       cclabel.save('trainPart/%s_%i_'%(key, cntTr))
+#       # cclabel.saveColor('trainColorFont/%s_%i_'%(key, cntTr))
+#       cntTr = cntTr + 1
+#     else:
+#       Image.open(path).save('testGray/%s_%i_.png'%(key, cntTe))
+#       cclabel = CCLabel(path)
+#       cclabel.saveColor('testPart/%s_%i_'%(key, cntTe))
+#       # cclabel.saveColor('testColorFont/%s_%i_'%(key, cntTe))
+#       cntTe = cntTe + 1
+#     cnt = cnt + 1
   
-  if cntTe == 0:
-      print(key)
+#   if cntTe == 0:
+#       print(key)
 
       # cclabel.saveColor('parts/%s_%i_'%(key, cnt))
       # cnt = cnt + 1
@@ -130,35 +130,36 @@ for key in pictNew:
 
 # needs = ['諦','諸','識','身','道','遠','阿','除','集','離','顛','香','鼻',]
 # 資料擴增
-# dataLoader = DataLoader('../dataprocess/trainChina/')
-# newRoot = '../dataprocess/newTrainChina/'
-# picts = dataLoader.getData()
-# for key in picts:
-#   print(key)
-#   # if key in haveDone:
-#   #   continue
-#   # if key not in needs:
-#   #     continue
-#   cnt = 0
-#   for pathPic in picts[key]:
-#     print(pathPic)
-#     cclabel = CCLabel(pathPic)
-#     imgs = cclabel.getScaleImgs()
-#     if imgs is not None:
-#       print(len(imgs))
-#       lens = len(imgs)
-#       if lens > 120:
-#         lens = 120
-#       for i in range(lens):
-#         imgs[i].save(newRoot + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
-#     else:
-#         print(pathPic + ' is None')
-#     cnt = cnt + 1
+dataLoader = DataLoader('../wordMacker/trainFontChina/')
+newRoot = 'ccsTrainFontChina/'
+picts = dataLoader.getData()
+for key in picts:
+  print(key)
+  # if key in haveDone:
+  #   continue
+  # if key not in needs:
+  #     continue
+  cnt = 0
+  for pathPic in picts[key]:
+    print(pathPic)
+    cclabel = CCLabel(pathPic)
+    imgs = cclabel.getScaleImgs()
+    if imgs is not None:
+      print(len(imgs))
+      lens = len(imgs)
+      if lens > 120:
+        lens = 120
+      for i in range(lens):
+        imgs[i].save('%s%s_%i_%i.png'%(newRoot, key, cnt, i))
+        # imgs[i].save(newRoot + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
+    else:
+        print(pathPic + ' is None')
+    cnt = cnt + 1
 
 # 資料擴增Ori
-# dataLoader = DataLoader('../dataprocess/total')
-# newRoot = '../dataprocess/newOri'
-# picts = dataLoader.getData()
+dataLoader = DataLoader('../wordMacker/trainFontChina/')
+newRoot = 'newTrainFontChina/'
+picts = dataLoader.getData()
 # for key in picts:
 #   print(key)
 #   # if key in haveDone:
@@ -173,7 +174,8 @@ for key in pictNew:
 #       if lens > 120:
 #         lens = 120
 #       for i in range(lens):
-#         imgs[i].save(newRoot + '/' + key + '/' + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
+#           imgs[i].save('%s%s_%i.png'%(newRoot, key, i))
+#         # imgs[i].save(newRoot + '/' + key + '/' + key + '_' + str(cnt) + '_' + str(i) + '.jpg')
 #     cnt = cnt + 1
     
 # path = '../dataprocess/total/三/三_1.jpg'

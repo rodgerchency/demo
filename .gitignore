@@ -1,0 +1,7 @@
+testData/**
+trainData/**
+fonts/**
+*.jpg
+*.png
+*.zip
+*.pyc

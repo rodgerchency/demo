@@ -120,15 +120,19 @@ class CCLabel:
         return (minx, miny, maxx + 1, maxy +1)
 
     def getTrans(self, img, crop):
-      
-      imgMove, posesMove = self.getSimpleMoves(img, crop)
+
+    #   imgMove, posesMove = self.getSimpleMoves(img, crop)
       imgsScale = []
       posesScale = []
-      for i in range(len(imgMove)):
-        imgs, poses = self.getSimpleScales(imgMove[i], posesMove[i])
-        imgsScale = imgsScale + imgs
-        posesScale = posesScale + poses
-      return imgsScale, posesScale
+      imgs, poses = self.getSimpleScales(img, crop)
+      return imgs, poses
+    #   imgsScale = imgsScale + imgs
+    #   posesScale = posesScale + poses
+    #   for i in range(len(imgMove)):
+    #     imgs, poses = self.getSimpleScales(imgMove[i], posesMove[i])
+    #     imgsScale = imgsScale + imgs
+    #     posesScale = posesScale + poses
+    #   return imgsScale, posesScale
 
     def getSimpleMoves(self, img, crop):
         lx = crop[0]
@@ -145,18 +149,18 @@ class CCLabel:
           x = [-2, -3]
         else:
             if random.randint(0,1) == 1:
-                x = [-2]
+                x = [-1]
             else:
-                x = [2]
+                x = [1]
         if ly == 0:
           y = [2]
         elif ry == 51:
           y = [-2]
         else:
             if random.randint(0,1) == 1:
-                y = [-2]
+                y = [-1]
             else:
-                y = [2]
+                y = [1]
         for i in x:
             for j in y:
               if i == 0 and y == 0:
@@ -170,6 +174,7 @@ class CCLabel:
         return imgs, poses   
 
     def getSimpleScales(self, img, crop):
+        
         imgs = []
         poses = []
         x = []
@@ -177,25 +182,13 @@ class CCLabel:
         w = crop[2] - crop[0]
         h = crop[3] - crop[1]
         if w == 1:
-            if random.randint(0,1) == 1:
-                x = [2]
-            else:
-                x = [3]
+            x = [0,1,2]
         else:
-            if random.randint(0,1) == 1:
-                x = [-1]
-            else:
-                x = [2]
+            x = [-1,0,1]
         if h == 1:
-            if random.randint(0,1) == 1:
-                y = [2]
-            else:
-                y = [3]
+            y = [0,2,3]
         else:
-            if random.randint(0,1) == 1:
-                y = [-1]
-            else:
-                y = [2]
+            y = [-1,0,1]
         for i in x:
             for j in y:
               if i == 0 and y == 0:
